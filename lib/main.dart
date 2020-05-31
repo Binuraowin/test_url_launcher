@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'HomePage.dart';
+import 'ShareingPage.dart';
+
+
 void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
