@@ -36,15 +36,19 @@ class _MyHomePageState extends State<MyHomePage> {
   Marker marker;
   Circle circle;
   GoogleMapController _controller;
+  var lat;
+  var longi;
+  LatLng markervalue;
+  LatLng testloc;
 
-  static final CameraPosition initialLocation = CameraPosition(
+   CameraPosition initialLocation = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
 
 
 
-  void updateMarkerAndCircle(LocationData newLocalData) {
+  LatLng updateMarkerAndCircle(LocationData newLocalData) {
     LatLng latlng = LatLng(newLocalData.latitude, newLocalData.longitude);
     print(latlng);
     this.setState(() {
@@ -54,14 +58,15 @@ class _MyHomePageState extends State<MyHomePage> {
           rotation: newLocalData.heading,
           draggable: true,
           onDragEnd: ((value){
-            print(value.latitude);
-            print(value.longitude);
+            markervalue = LatLng(value.latitude, value.longitude);
+            print(markervalue);
           }),
           zIndex: 2,
           flat: true,
           anchor: Offset(0.5, 0.5));
  
     });
+    return markervalue;
   }
 
   void getCurrentLocation() async {
@@ -75,12 +80,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
  
         if (_controller != null) {
+           if (markervalue != null) {
+             testloc=LatLng(markervalue.latitude, markervalue.longitude);
+            print(markervalue);
+          } else {
+            testloc=LatLng(location.latitude, location.longitude);
+            print(location);
+          }
           _controller.animateCamera(CameraUpdate.newCameraPosition(new CameraPosition(
               bearing: 192.8334901395799,
-              target: LatLng(location.latitude, location.longitude),
+              target:testloc,
               tilt: 0,
               zoom: 18.00)));
           updateMarkerAndCircle(location);
+          print(markervalue);
+         
         }
       
 
@@ -106,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: GoogleMap(
-        mapType: MapType.hybrid,
+        mapType: MapType.normal,
         initialCameraPosition: initialLocation,
         markers: Set.of((marker != null) ? [marker] : []),
         onMapCreated: (GoogleMapController controller) {
