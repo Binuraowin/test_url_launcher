@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -69,7 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return markervalue;
   }
 
-  void getCurrentLocation() async {
+
+  Future<LatLng> getCurrentLocation() async {
     try {
 
      
@@ -82,10 +84,11 @@ class _MyHomePageState extends State<MyHomePage> {
         if (_controller != null) {
            if (markervalue != null) {
              testloc=LatLng(markervalue.latitude, markervalue.longitude);
-            print(markervalue);
+      print(markervalue);
+            
           } else {
             testloc=LatLng(location.latitude, location.longitude);
-            print(location);
+      print(location);
           }
           _controller.animateCamera(CameraUpdate.newCameraPosition(new CameraPosition(
               bearing: 192.8334901395799,
@@ -93,8 +96,8 @@ class _MyHomePageState extends State<MyHomePage> {
               tilt: 0,
               zoom: 18.00)));
           updateMarkerAndCircle(location);
-          print(markervalue);
-         
+         print(markervalue);
+         return testloc;
         }
       
 
@@ -115,9 +118,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+      return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+         actions: <Widget>[
+          FlatButton.icon(
+            onPressed: ()  {
+ 
+            },
+            icon: Icon(Icons.location_on),
+            label: Text('Share my location',style: TextStyle(
+                          fontSize: 12,
+
+                        ),),
+          )]
       ),
       body: GoogleMap(
         mapType: MapType.normal,
