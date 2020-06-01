@@ -10,24 +10,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
- 
   GoogleMapController _controller;
   Position _currentPosition;
   String _currentAddress;
 
- 
-List<Marker> allMarkers = [];
+  final String _markerImageUrl =
+      'https://img.icons8.com/office/80/000000/marker.png';
 
- @override
-void initState() {
-  super.initState();
-  allMarkers.add(Marker(
-    markerId:MarkerId("myMarker"),
-    draggable: true,
-  //  position: LatLng(_currentPosition.latitude, _currentPosition.longitude),
-     ));
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
-}
+  @override
+  void initState() {
+    super.initState();
+    _currentPosition = null;
+    markers = {};
+  }
+
+  getLoc() async {
+    await _getCurrentLocation();
+    Marker marker = Marker(
+      markerId: MarkerId("myMarker"),
+      draggable: true,
+      position: LatLng(6.157, 85.3658),
+    );
+
+    this.setState(() {
+      markers[marker.markerId] = marker;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,44 +45,44 @@ void initState() {
       appBar: AppBar(
         title: Text("Location"),
       ),
-      body:
-      GoogleMap(
+      body: GoogleMap(
         mapType: MapType.normal,
         compassEnabled: true,
         initialCameraPosition: CameraPosition(
           target: LatLng(6.8211, 80.0409),
-          zoom: 12.0,
+          zoom: 8.0,
         ),
-       markers: Set.from(allMarkers),
-     //   circles: Set.of((circle != null) ? [circle] : []),
-        onMapCreated: (GoogleMapController controller) {
-          _controller = controller;
-        },
-
+        markers: Set<Marker>.of(markers.values),
+        //   circles: Set.of((circle != null) ? [circle] : []),
+       onMapCreated: (controller) => _onMapCreated(controller),
       ),
-        floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
           child: Icon(Icons.location_searching),
           onPressed: () {
-           _getCurrentLocation();
+            _getCurrentLocation();
           }),
-
     );
   }
 
-  _getCurrentLocation() {
+_onMapCreated(GoogleMapController controller)async{
+  print("map created");
+  await getLoc();
+  controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: markers.values.first.position)));
+}
+
+  _getCurrentLocation() async {
     final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
 
-    geolocator
+    await geolocator
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
         .then((Position position) {
       setState(() {
         _currentPosition = position;
       });
 
-    //  _getAddressFromLatLng();
+      //  _getAddressFromLatLng();
     }).catchError((e) {
       print(e);
     });
   }
-
 }
