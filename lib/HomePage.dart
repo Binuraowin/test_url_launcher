@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
-class HomePage extends StatelessWidget {
+class ProviderPage extends StatelessWidget {
     final String lat = "6.8211";
   final String lng = "80.0409";
   @override
