@@ -7,26 +7,46 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'user_map.dart';
 import 'HomePage.dart';
+import 'redux/reducers.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux_dev_tools/redux_dev_tools.dart';
+import 'locationItem.dart';
+
 
 
 void main() {
-  runApp(MaterialApp(
-    title: 'Returning Data',
-    home: HomeScreen(),
-  ));
-}
+  final store = new DevToolsStore<List<TestLocation>>(locationReducer,
+      initialState: new List());
 
-class HomeScreen extends StatelessWidget {
+//  final store = new Store<List<String>>(addItemReducer,
+//      initialState: new List());
+
+  runApp(new FlutterReduxApp(store));
+}
+class FlutterReduxApp extends StatelessWidget {
+  final DevToolsStore<List<TestLocation>> store;
+
+  FlutterReduxApp(this.store);
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Returning Data Demo'),
-      ),
-      body: Center(child: SelectionScreen()),
+    return new StoreProvider<List<TestLocation>>(
+      store: store,
+      child: new SelectionScreen(store),
     );
   }
 }
+// class HomeScreen extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Returning Data Demo'),
+//       ),
+//       body: Center(child: SelectionScreen()),
+//     );
+//   }
+// }
 
 // class SelectionButton extends StatelessWidget {
 //   @override
@@ -57,13 +77,14 @@ class HomeScreen extends StatelessWidget {
 //   }
 // }
 
+
 class SelectionScreen extends StatelessWidget {
+ final DevToolsStore<List<TestLocation>> store;
+
+  SelectionScreen(this.store);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Pick an option'),
-      // ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -72,7 +93,6 @@ class SelectionScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: RaisedButton(
                 onPressed: () {
-                  // Close the screen and return "Yep!" as the result.
                   Navigator.push(context, MaterialPageRoute(builder:(context){
                     return MyHomePage();
                   }));
