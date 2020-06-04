@@ -1,13 +1,7 @@
 import 'package:test_url_launcher/locationItem.dart';
 
-class AddLatitudeAction {
-  final TestLocation latitude;
+class AddLocation {
+  final TestLocation location;
 
-  AddLatitudeAction(this.latitude);
-}
-
-class AddLongitudeAction {
-  final TestLocation longitude;
-
-  AddLongitudeAction(this.longitude);
+  AddLocation(this.location);
 }

@@ -1,38 +1,44 @@
-
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'locationItem.dart';
+import 'redux/actions.dart';
+import 'redux/reducers.dart';
+import 'test.dart';
+import 'test.dart';
+import 'test.dart';
 import 'user_map.dart';
 import 'HomePage.dart';
 import 'redux/reducers.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux_dev_tools/redux_dev_tools.dart';
 import 'locationItem.dart';
-
-
+import 'package:redux/redux.dart';
 
 void main() {
-  final store = new DevToolsStore<List<TestLocation>>(locationReducer,
-      initialState: new List());
-
-//  final store = new Store<List<String>>(addItemReducer,
-//      initialState: new List());
-
-  runApp(new FlutterReduxApp(store));
+  runApp(new FlutterReduxApp());
 }
-class FlutterReduxApp extends StatelessWidget {
-  final DevToolsStore<List<TestLocation>> store;
 
-  FlutterReduxApp(this.store);
+class FlutterReduxApp extends StatelessWidget {
+  FlutterReduxApp();
 
   @override
   Widget build(BuildContext context) {
-    return new StoreProvider<List<TestLocation>>(
+    final Store<AppState> store = Store<AppState>(
+      appStateReducer,
+      initialState: AppState.initialState(),
+    );
+
+    return StoreProvider<AppState>(
       store: store,
-      child: new SelectionScreen(store),
+      child: MaterialApp(
+        title: 'Redux Items',
+        theme: ThemeData.dark(),
+        home: new SelectionScreen(store),
+      ),
     );
   }
 }
@@ -77,44 +83,47 @@ class FlutterReduxApp extends StatelessWidget {
 //   }
 // }
 
-
 class SelectionScreen extends StatelessWidget {
- final DevToolsStore<List<TestLocation>> store;
+  final Store<AppState> store;
 
   SelectionScreen(this.store);
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RaisedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder:(context){
-                    return MyHomePage();
-                  }));
-                },
-                child: Text('User'),
+    return StoreConnector<AppState, ViewModel>(
+        converter: (Store<AppState> store) => ViewModel.create(store),
+        builder: (BuildContext context, ViewModel viewModel) => Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: RaisedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return MyHomePage(viewModel);
+                          }));
+                        },
+                        child: Text('User'),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: RaisedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return ProviderPage();
+                          }));
+                        },
+                        child: Text('Provider'),
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RaisedButton(
-                onPressed: () {
-                   Navigator.push(context, MaterialPageRoute(builder:(context){
-                    return ProviderPage();
-                  }));
-                },
-                child: Text('Provider'),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+            ));
   }
 }
 /*
@@ -136,3 +145,24 @@ class MyApp extends StatelessWidget {
   }
 }
 */
+
+class ViewModel {
+  final List<TestLocation> locations;
+  final Function(TestLocation) onAddLocation;
+
+  ViewModel({
+    this.locations,
+    this.onAddLocation,
+  });
+
+  factory ViewModel.create(Store<AppState> store) {
+    _onAddLocation(TestLocation body) {
+      store.dispatch(AddLocation(body));
+    }
+
+    return ViewModel(
+      locations: store.state.locationList,
+      onAddLocation: _onAddLocation,
+    );
+  }
+}
